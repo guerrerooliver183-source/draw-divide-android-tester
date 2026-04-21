@@ -2,6 +2,10 @@
 
 using namespace geode::prelude;
 
+// ↓↓↓ ESTO ES LO NUEVO ↓↓↓
+#ifdef GEODE_IS_WINDOWS
+#include <windows.h>
+
 double get_refresh_rate() {
 	static const double refresh_rate = [] {
 		DEVMODEA device_mode;
@@ -12,10 +16,7 @@ double get_refresh_rate() {
 		if (EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &device_mode) == 0) {
 			return 60.0;
 		} else {
-			// TODO: see if there is a way to get the exact frequency?
-			// like 59.940hz
 			auto freq = device_mode.dmDisplayFrequency;
-			// interlaced screens actually display twice of the reported frequency
 			if (device_mode.dmDisplayFlags & DM_INTERLACED) {
 				freq *= 2;
 			}
@@ -24,13 +25,18 @@ double get_refresh_rate() {
 	}();
 	return refresh_rate;
 }
+#else
+// Para Android, Mac o Linux simplemente devolvemos 60
+double get_refresh_rate() {
+    return 60.0;
+}
+#endif
+// ↑↑↑ FIN DE LO NUEVO ↑↑↑
 
 double g_delta_count = 0.0;
 bool g_enabled = true;
 bool g_force_target_fps = false;
 int g_force_fps = 60;
-
-// #define DEBUG_FPS
 
 #ifdef DEBUG_FPS
 int count_total = 0;
@@ -41,13 +47,11 @@ double total_time = 0.0;
 #include <Geode/modify/CCDirector.hpp>
 class $modify(CCDirector) {
 	void drawScene() {
-		// disable for first 150 frames of game being open
 		if (!g_enabled || this->getTotalFrames() < 150) {
 			return CCDirector::drawScene();
 		}
 
 		const double target_fps = g_force_target_fps ? static_cast<double>(g_force_fps) : get_refresh_rate();
-
 		const double target_delta = 1.0 / target_fps;
 
 		g_delta_count += this->getActualDeltaTime();
@@ -57,9 +61,7 @@ class $modify(CCDirector) {
 		total_time += this->getActualDeltaTime();
 #endif
 
-		// run full scene draw (glClear, visit) each time the counter is full
 		if (g_delta_count >= target_delta) {
-			// keep left over
 			g_delta_count -= target_delta;
 #ifdef DEBUG_FPS
 			++count_render;
@@ -75,11 +77,6 @@ class $modify(CCDirector) {
 			count_total = 0;
 		}
 #endif
-
-		// otherwise, we only run updates
-
-		// this line seems to create a speedhack
-		// this->calculateDeltaTime_();
 
 		if (!this->isPaused()) {
 			this->CCDirector::getScheduler()->CCScheduler::update(this->CCDirector::getDeltaTime());
