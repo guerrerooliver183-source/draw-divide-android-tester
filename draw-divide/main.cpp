@@ -2,7 +2,6 @@
 
 using namespace geode::prelude;
 
-// ↓↓↓ ESTO ES LO NUEVO ↓↓↓
 #ifdef GEODE_IS_WINDOWS
 #include <windows.h>
 
@@ -26,12 +25,10 @@ double get_refresh_rate() {
 	return refresh_rate;
 }
 #else
-// Para Android, Mac o Linux simplemente devolvemos 60
 double get_refresh_rate() {
     return 60.0;
 }
 #endif
-// ↑↑↑ FIN DE LO NUEVO ↑↑↑
 
 double g_delta_count = 0.0;
 bool g_enabled = true;
