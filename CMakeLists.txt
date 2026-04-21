@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Solo configurar arquitecturas si NO es Android
+# Configurar arquitecturas solo si no es Android
 if(NOT ANDROID)
     if ("${CMAKE_SYSTEM_NAME}" STREQUAL "iOS" OR IOS)
         set(CMAKE_OSX_ARCHITECTURES "arm64")
@@ -13,7 +13,7 @@ endif()
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-project(geode-mods)
+project(draw-divide)
 
 if (NOT DEFINED ENV{GEODE_SDK})
 	message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")
@@ -24,16 +24,6 @@ endif()
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
 
 CPMAddPackage("gh:camila314/uibuilder#04d0075")
-add_subdirectory(nodes)
 
-if (WIN32)
-	add_subdirectory(draw-divide)
-	add_subdirectory(max-window)
-	add_subdirectory(ingame-screenshot)
-endif()
-
-add_subdirectory(run-info)
-add_subdirectory(scroll-zoom)
-add_subdirectory(circle-tool)
-add_subdirectory(reference-image)
-add_subdirectory(song-preview)
+# Solo compilar este mod
+add_subdirectory(draw-divide)
